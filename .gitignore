@@ -5,9 +5,19 @@
 /[Bb]uilds/
 /[Ll]ogs/
 /[Uu]serSettings/
+/[Aa]ssets/[Ss]treamingAssets/*
+/[Ll]ibrary/
+
+# MemoryCaptures can get excessive in size.
+# They also could contain extremely sensitive data
+/[Mm]emoryCaptures/
+
+# Recordings can get excessive in size
+/[Rr]ecordings/
 
 # Uncomment this line if you wish to ignore the asset store tools plugin
 # [Aa]ssets/AssetStoreTools*
+/[Aa]ssets/Plugins/Editor/JetBrains*
 
 # Visual Studio cache directory
 .vs/
@@ -44,6 +54,8 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+*.app
+*.aab
 
 # Crashlytics generated file
 crashlytics-build.properties
@@ -57,3 +69,10 @@ Thumbs.db.meta
 
 # VS Code
 *.vscode
+
+# Packed Addressables
+/[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
+
+# Temporary auto-generated Android Assets
+/[Aa]ssets/[Ss]treamingAssets/aa.meta
+/[Aa]ssets/[Ss]treamingAssets/aa/*
