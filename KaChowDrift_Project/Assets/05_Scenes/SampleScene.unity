@@ -931,9 +931,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rb: {fileID: 1843626077}
-  _moveSpeed: 20
+  _accelerationForce: 50
+  _steeringForce: 100
+  _maxSpeed: 20
   moveAction: {fileID: -419708311490253088, guid: 1d8db72c2c4a5394aa25470f0fe795ef,
     type: 3}
+  accelerateAction: {fileID: 0}
 --- !u!4 &1929580124 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7344874181333496817, guid: ab4ea67cd9337c341af0bd7182c60f92,
@@ -1047,7 +1050,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 10, y: 1, z: 10}
+  m_LocalScale: {x: 100, y: 1, z: 100}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -2064,7 +2067,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 642287924745096951}
   serializedVersion: 4
-  m_Mass: 950
+  m_Mass: 3000
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -2096,8 +2099,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rb: {fileID: 5135156708071352916}
-  _moveSpeed: 20
+  _accelerationForce: 50
+  _steeringForce: 100
+  _maxSpeed: 20
   moveAction: {fileID: -419708311490253088, guid: 1d8db72c2c4a5394aa25470f0fe795ef,
+    type: 3}
+  accelerateAction: {fileID: -3678528205039873827, guid: 1d8db72c2c4a5394aa25470f0fe795ef,
     type: 3}
 --- !u!114 &5135156708071352918
 MonoBehaviour:
