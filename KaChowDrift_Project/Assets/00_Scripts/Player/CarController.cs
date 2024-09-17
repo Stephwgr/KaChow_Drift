@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,6 +12,7 @@ public class CarController : MonoBehaviour
     public Rigidbody _rbPlayer;
     public WheelColliders _wheelColliders;
     public WheelMeshes _wheelMeshes;
+    public WheelParticles _wheelParticles;
 
     public float _gasInput;
     // public float _backInput;
@@ -23,6 +25,8 @@ public class CarController : MonoBehaviour
     private float _speed;
     public AnimationCurve _steeringCurve;
 
+    public GameObject _smokePrefab;
+
     // public InputActionReference moveActionVector2;
 
     public InputActionReference moveActionFloat;
@@ -34,6 +38,8 @@ public class CarController : MonoBehaviour
     private void Start()
     {
         _rbPlayer = gameObject.GetComponent<Rigidbody>();
+        InstantiateSmoke();
+        
     }
 
 
@@ -46,6 +52,7 @@ public class CarController : MonoBehaviour
         ApplyMotor();
         ApplySteering();
         ApplyBrake();
+        CheckParticles();
 
 
     }
@@ -78,6 +85,66 @@ public class CarController : MonoBehaviour
 
     }
 
+    void InstantiateSmoke()
+    {
+        _wheelParticles.FRWheel = Instantiate(_smokePrefab, _wheelColliders.FRWheel.transform.position - Vector3.up * _wheelColliders.FRWheel.radius, Quaternion.identity, _wheelColliders.FRWheel.transform)
+            .GetComponent<ParticleSystem>();
+        _wheelParticles.FLWheel = Instantiate(_smokePrefab, _wheelColliders.FLWheel.transform.position- Vector3.up * _wheelColliders.FLWheel.radius, Quaternion.identity, _wheelColliders.FLWheel.transform)
+            .GetComponent<ParticleSystem>();
+        _wheelParticles.RRWheel = Instantiate(_smokePrefab, _wheelColliders.RRWheel.transform.position- Vector3.up * _wheelColliders.RRWheel.radius, Quaternion.identity, _wheelColliders.RRWheel.transform)
+            .GetComponent<ParticleSystem>();
+        _wheelParticles.RLWheel = Instantiate(_smokePrefab, _wheelColliders.RLWheel.transform.position- Vector3.up * _wheelColliders.RLWheel.radius, Quaternion.identity, _wheelColliders.RLWheel.transform)
+            .GetComponent<ParticleSystem>();
+    }
+
+    void CheckParticles()
+    {
+        WheelHit[] wheelHits = new WheelHit[4];
+        _wheelColliders.FRWheel.GetGroundHit(out wheelHits[0]);
+        _wheelColliders.FLWheel.GetGroundHit(out wheelHits[1]);
+        _wheelColliders.RRWheel.GetGroundHit(out wheelHits[2]);
+        _wheelColliders.RLWheel.GetGroundHit(out wheelHits[3]);
+
+        float slipAllowance = 0.1f;
+
+        if((Mathf.Abs(wheelHits[0].sidewaysSlip) + Mathf.Abs(wheelHits[0].forwardSlip) > slipAllowance))
+        {
+            _wheelParticles.FRWheel.Play();
+        }
+        else
+        {
+            _wheelParticles.FRWheel.Stop();
+
+        }
+        if((Mathf.Abs(wheelHits[1].sidewaysSlip) + Mathf.Abs(wheelHits[1].forwardSlip) > slipAllowance))
+        {
+            _wheelParticles.FLWheel.Play();
+        }
+        else
+        {
+            _wheelParticles.FLWheel.Stop();
+
+        }
+        if((Mathf.Abs(wheelHits[2].sidewaysSlip) + Mathf.Abs(wheelHits[2].forwardSlip) > slipAllowance))
+        {
+            _wheelParticles.RRWheel.Play();
+        }
+        else
+        {
+            _wheelParticles.RRWheel.Stop();
+
+        }
+        if((Mathf.Abs(wheelHits[3].sidewaysSlip) + Mathf.Abs(wheelHits[3].forwardSlip) > slipAllowance))
+        {
+            _wheelParticles.RLWheel.Play();
+        }
+        else
+        {
+            _wheelParticles.RLWheel.Stop();
+
+        }
+    }
+
     void ApplyBrake()
     {
         _wheelColliders.FRWheel.brakeTorque = _brakeInput * _breakPower * 0.7F;
@@ -89,6 +156,8 @@ public class CarController : MonoBehaviour
     void ApplySteering()
     {
         float steeringAngle = _steeringInput * _steeringCurve.Evaluate(_speed);
+        steeringAngle += Vector3.SignedAngle(transform.forward, _rbPlayer.velocity + transform.forward, Vector3.up);
+        steeringAngle = Mathf.Clamp(steeringAngle, -90f, 90f);
         _wheelColliders.FRWheel.steerAngle = steeringAngle;
         _wheelColliders.FLWheel.steerAngle = steeringAngle;
     }
@@ -139,5 +208,14 @@ public class WheelMeshes
     public MeshRenderer FLWheel;
     public MeshRenderer RRWheel;
     public MeshRenderer RLWheel;
+}
+
+[System.Serializable]
+public class WheelParticles
+{
+    public ParticleSystem FRWheel;
+    public ParticleSystem FLWheel;
+    public ParticleSystem RRWheel;
+    public ParticleSystem RLWheel;
 }
 
