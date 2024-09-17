@@ -6,7 +6,7 @@
             "id": "614e1e1c-ccb2-4f37-8d66-4496cf49e4ee",
             "actions": [
                 {
-                    "name": "Accelerate",
+                    "name": "Accelerate/Back",
                     "type": "Button",
                     "id": "26216225-4f92-4476-8d6b-2994f1e3d8fb",
                     "expectedControlType": "Button",
@@ -24,10 +24,10 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Move",
+                    "name": "Move_Vector2",
                     "type": "PassThrough",
                     "id": "f0888e78-4aeb-4370-bbfe-90b3d1a4f918",
-                    "expectedControlType": "Vector2",
+                    "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -36,6 +36,24 @@
                     "name": "Drift",
                     "type": "Button",
                     "id": "3a8c2f1b-3c0a-4465-bbd2-76cdb276d612",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Move_Float",
+                    "type": "Button",
+                    "id": "fafd5393-990b-46be-a81e-5f3010b26dfa",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Brake",
+                    "type": "Button",
+                    "id": "7d29f528-ceb1-4c06-a4c6-04bf49698075",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -50,7 +68,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Move",
+                    "action": "Move_Vector2",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
@@ -61,7 +79,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard_Gamepad",
-                    "action": "Move",
+                    "action": "Move_Vector2",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -72,7 +90,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard_Gamepad",
-                    "action": "Move",
+                    "action": "Move_Vector2",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -83,7 +101,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Move",
+                    "action": "Move_Vector2",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
@@ -94,7 +112,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Move",
+                    "action": "Move_Vector2",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -105,7 +123,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Move",
+                    "action": "Move_Vector2",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -116,7 +134,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard_Gamepad",
-                    "action": "Accelerate",
+                    "action": "Accelerate/Back",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -126,8 +144,30 @@
                     "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "Accelerate",
+                    "groups": "Keyboard_Gamepad",
+                    "action": "Accelerate/Back",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d0410744-c1a7-4f22-a6ff-14b7faa078b9",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "",
+                    "processors": "Invert",
+                    "groups": "Keyboard_Gamepad",
+                    "action": "Accelerate/Back",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fc60ee29-fe7b-4d1f-8c91-499065aab31c",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "Invert",
+                    "groups": "Keyboard_Gamepad",
+                    "action": "Accelerate/Back",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -158,7 +198,7 @@
                     "id": "40d558f7-70a5-4b90-8b81-5fa4eb566092",
                     "path": "<Gamepad>/leftTrigger",
                     "interactions": "",
-                    "processors": "",
+                    "processors": "Invert",
                     "groups": "Keyboard_Gamepad",
                     "action": "Back",
                     "isComposite": false,
@@ -169,9 +209,53 @@
                     "id": "0714047c-485f-41b2-aa65-2921daa07def",
                     "path": "<Keyboard>/s",
                     "interactions": "",
-                    "processors": "",
+                    "processors": "Invert",
                     "groups": "",
                     "action": "Back",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "69d9bc89-5548-4b5d-ab99-2b560de01491",
+                    "path": "<Gamepad>/leftStick/left",
+                    "interactions": "",
+                    "processors": "Invert",
+                    "groups": "Keyboard_Gamepad",
+                    "action": "Move_Float",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ed96792c-de9f-438d-97a1-f4293a7ed771",
+                    "path": "<Gamepad>/leftStick/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard_Gamepad",
+                    "action": "Move_Float",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b9242a0e-ebb9-4a41-8695-d1db9d15d1a6",
+                    "path": "<Gamepad>/leftShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard_Gamepad",
+                    "action": "Brake",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "13308308-16d3-4bf8-8c89-4745a734833c",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard_Gamepad",
+                    "action": "Brake",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

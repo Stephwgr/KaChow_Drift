@@ -1004,6 +1004,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6112ddd3a1eb1564ea50db40f3b49248, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _rbPlayer: {fileID: 0}
   _wheelColliders:
     FRWheel: {fileID: 1201796300}
     FLWheel: {fileID: 1216196495}
@@ -1015,13 +1016,39 @@ MonoBehaviour:
     RRWheel: {fileID: 2055316823}
     RLWheel: {fileID: 852363629}
   _gasInput: 0
-  _backInput: 0
-  _steeringInput: {x: 0, y: 0}
-  moveAction: {fileID: -419708311490253088, guid: 1d8db72c2c4a5394aa25470f0fe795ef,
+  _steeringInput: 0
+  _brakeInput: 0
+  _motorPower: 500
+  _breakPower: 50000000
+  _steeringCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: -4.295203
+      value: 60.242752
+      inSlope: -0.3601782
+      outSlope: -0.3601782
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.15878491
+    - serializedVersion: 3
+      time: 79.410446
+      value: 15.242317
+      inSlope: -0.40866864
+      outSlope: -0.40866864
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.1951219
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  moveActionFloat: {fileID: 5225798028563506927, guid: 1d8db72c2c4a5394aa25470f0fe795ef,
     type: 3}
   gasAction: {fileID: -3678528205039873827, guid: 1d8db72c2c4a5394aa25470f0fe795ef,
     type: 3}
-  backAction: {fileID: 3587697845508677503, guid: 1d8db72c2c4a5394aa25470f0fe795ef,
+  brakeAction: {fileID: -4917005050050921540, guid: 1d8db72c2c4a5394aa25470f0fe795ef,
     type: 3}
 --- !u!1 &832575517
 GameObject:
@@ -1446,13 +1473,13 @@ WheelCollider:
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.8
     m_AsymptoteValue: 0.5
-    m_Stiffness: 1
+    m_Stiffness: 0.8
   m_SidewaysFriction:
     m_ExtremumSlip: 0.2
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.5
     m_AsymptoteValue: 0.75
-    m_Stiffness: 1
+    m_Stiffness: 0.8
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -1517,13 +1544,13 @@ WheelCollider:
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.8
     m_AsymptoteValue: 0.5
-    m_Stiffness: 1
+    m_Stiffness: 0.8
   m_SidewaysFriction:
     m_ExtremumSlip: 0.2
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.5
     m_AsymptoteValue: 0.75
-    m_Stiffness: 1
+    m_Stiffness: 0.8
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -2471,7 +2498,7 @@ MonoBehaviour:
   m_Priority: 10
   m_StandbyUpdate: 2
   m_LookAt: {fileID: 0}
-  m_Follow: {fileID: 261786960295892045}
+  m_Follow: {fileID: 654520676}
   m_Lens:
     FieldOfView: 60
     OrthographicSize: 5
