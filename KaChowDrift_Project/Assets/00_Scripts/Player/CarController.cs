@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Sirenix.OdinInspector;
 
 
 
@@ -14,13 +15,20 @@ public class CarController : MonoBehaviour
     public WheelMeshes _wheelMeshes;
     public WheelParticles _wheelParticles;
 
-    public float _gasInput;
+    private float _gasInput;
     // public float _backInput;
-    public float _steeringInput;
-    public float _brakeInput;
+    private float _steeringInput;
+    private float _brakeInput;
 
-    public float _motorPower;
-    public float _breakPower;
+    [Header("Data Power")]
+    [SerializeField] private float _motorPower;
+    [SerializeField] private float _breakPower;
+    [SerializeField] private float _kmhMax = 100f;
+
+    [ShowInInspector, ReadOnly]
+    [SerializeField] private float _currentKmh;
+
+
     private float _slipAngle; //angle de glissement
     private float _speed;
     public AnimationCurve _steeringCurve;
@@ -39,13 +47,14 @@ public class CarController : MonoBehaviour
     {
         _rbPlayer = gameObject.GetComponent<Rigidbody>();
         InstantiateSmoke();
-        
+
     }
 
 
     private void Update()
     {
         _speed = _rbPlayer.velocity.magnitude;
+        _currentKmh = _speed * 3.6f;
 
         CheckInput();
         ApplyWheelPositions();
@@ -79,9 +88,9 @@ public class CarController : MonoBehaviour
             }
         }
         else
-            {
-                _brakeInput = 0f;
-            }
+        {
+            _brakeInput = 0f;
+        }
 
     }
 
@@ -89,11 +98,11 @@ public class CarController : MonoBehaviour
     {
         _wheelParticles.FRWheel = Instantiate(_smokePrefab, _wheelColliders.FRWheel.transform.position - Vector3.up * _wheelColliders.FRWheel.radius, Quaternion.identity, _wheelColliders.FRWheel.transform)
             .GetComponent<ParticleSystem>();
-        _wheelParticles.FLWheel = Instantiate(_smokePrefab, _wheelColliders.FLWheel.transform.position- Vector3.up * _wheelColliders.FLWheel.radius, Quaternion.identity, _wheelColliders.FLWheel.transform)
+        _wheelParticles.FLWheel = Instantiate(_smokePrefab, _wheelColliders.FLWheel.transform.position - Vector3.up * _wheelColliders.FLWheel.radius, Quaternion.identity, _wheelColliders.FLWheel.transform)
             .GetComponent<ParticleSystem>();
-        _wheelParticles.RRWheel = Instantiate(_smokePrefab, _wheelColliders.RRWheel.transform.position- Vector3.up * _wheelColliders.RRWheel.radius, Quaternion.identity, _wheelColliders.RRWheel.transform)
+        _wheelParticles.RRWheel = Instantiate(_smokePrefab, _wheelColliders.RRWheel.transform.position - Vector3.up * _wheelColliders.RRWheel.radius, Quaternion.identity, _wheelColliders.RRWheel.transform)
             .GetComponent<ParticleSystem>();
-        _wheelParticles.RLWheel = Instantiate(_smokePrefab, _wheelColliders.RLWheel.transform.position- Vector3.up * _wheelColliders.RLWheel.radius, Quaternion.identity, _wheelColliders.RLWheel.transform)
+        _wheelParticles.RLWheel = Instantiate(_smokePrefab, _wheelColliders.RLWheel.transform.position - Vector3.up * _wheelColliders.RLWheel.radius, Quaternion.identity, _wheelColliders.RLWheel.transform)
             .GetComponent<ParticleSystem>();
     }
 
@@ -107,7 +116,7 @@ public class CarController : MonoBehaviour
 
         float slipAllowance = 0.3f;
 
-        if((Mathf.Abs(wheelHits[0].sidewaysSlip) + Mathf.Abs(wheelHits[0].forwardSlip) > slipAllowance))
+        if ((Mathf.Abs(wheelHits[0].sidewaysSlip) + Mathf.Abs(wheelHits[0].forwardSlip) > slipAllowance))
         {
             _wheelParticles.FRWheel.Play();
         }
@@ -116,7 +125,7 @@ public class CarController : MonoBehaviour
             _wheelParticles.FRWheel.Stop();
 
         }
-        if((Mathf.Abs(wheelHits[1].sidewaysSlip) + Mathf.Abs(wheelHits[1].forwardSlip) > slipAllowance))
+        if ((Mathf.Abs(wheelHits[1].sidewaysSlip) + Mathf.Abs(wheelHits[1].forwardSlip) > slipAllowance))
         {
             _wheelParticles.FLWheel.Play();
         }
@@ -125,7 +134,7 @@ public class CarController : MonoBehaviour
             _wheelParticles.FLWheel.Stop();
 
         }
-        if((Mathf.Abs(wheelHits[2].sidewaysSlip) + Mathf.Abs(wheelHits[2].forwardSlip) > slipAllowance))
+        if ((Mathf.Abs(wheelHits[2].sidewaysSlip) + Mathf.Abs(wheelHits[2].forwardSlip) > slipAllowance))
         {
             _wheelParticles.RRWheel.Play();
         }
@@ -134,7 +143,7 @@ public class CarController : MonoBehaviour
             _wheelParticles.RRWheel.Stop();
 
         }
-        if((Mathf.Abs(wheelHits[3].sidewaysSlip) + Mathf.Abs(wheelHits[3].forwardSlip) > slipAllowance))
+        if ((Mathf.Abs(wheelHits[3].sidewaysSlip) + Mathf.Abs(wheelHits[3].forwardSlip) > slipAllowance))
         {
             _wheelParticles.RLWheel.Play();
         }
@@ -176,8 +185,20 @@ public class CarController : MonoBehaviour
 
     void ApplyMotor()
     {
-        _wheelColliders.RRWheel.motorTorque = _motorPower * _gasInput;
-        _wheelColliders.RLWheel.motorTorque = _motorPower * _gasInput;
+        // Convertir la vitesse en km/h
+        float currentSpeedKmh = _rbPlayer.velocity.magnitude * 3.6f;
+
+        // Si la vitesse dépasse la limite, désactiver le couple moteur
+        if (currentSpeedKmh < _kmhMax)
+        {
+            _wheelColliders.RRWheel.motorTorque = _motorPower * _gasInput;
+            _wheelColliders.RLWheel.motorTorque = _motorPower * _gasInput;
+        }
+        else
+        {
+            _wheelColliders.RRWheel.motorTorque = 0f;
+            _wheelColliders.RLWheel.motorTorque = 0f;
+        }
     }
 
 
