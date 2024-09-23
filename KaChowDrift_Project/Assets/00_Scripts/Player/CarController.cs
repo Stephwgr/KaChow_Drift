@@ -9,7 +9,7 @@ using UnityEngine.InputSystem;
 
 public class CarController : MonoBehaviour
 {
-    public Rigidbody _rbPlayer;
+    private Rigidbody _rbPlayer;
     public WheelColliders _wheelColliders;
     public WheelMeshes _wheelMeshes;
     public WheelParticles _wheelParticles;
@@ -105,7 +105,7 @@ public class CarController : MonoBehaviour
         _wheelColliders.RRWheel.GetGroundHit(out wheelHits[2]);
         _wheelColliders.RLWheel.GetGroundHit(out wheelHits[3]);
 
-        float slipAllowance = 0.1f;
+        float slipAllowance = 0.3f;
 
         if((Mathf.Abs(wheelHits[0].sidewaysSlip) + Mathf.Abs(wheelHits[0].forwardSlip) > slipAllowance))
         {
@@ -149,15 +149,27 @@ public class CarController : MonoBehaviour
     {
         _wheelColliders.FRWheel.brakeTorque = _brakeInput * _breakPower * 0.7F;
         _wheelColliders.FLWheel.brakeTorque = _brakeInput * _breakPower * 0.7F;
-        _wheelColliders.RRWheel.brakeTorque = _brakeInput * _breakPower * 0.3F;
-        _wheelColliders.RLWheel.brakeTorque = _brakeInput * _breakPower * 0.3F;
+        _wheelColliders.RRWheel.brakeTorque = _brakeInput * _breakPower * 0.4F;
+        _wheelColliders.RLWheel.brakeTorque = _brakeInput * _breakPower * 0.4F;
     }
 
     void ApplySteering()
     {
         float steeringAngle = _steeringInput * _steeringCurve.Evaluate(_speed);
-        steeringAngle += Vector3.SignedAngle(transform.forward, _rbPlayer.velocity + transform.forward, Vector3.up);
+
+        // Contre-braquage basé sur la vitesse et la dérive
+        float counterSteer = Vector3.SignedAngle(transform.forward, _rbPlayer.velocity, Vector3.up);
+        counterSteer = Mathf.Clamp(counterSteer, -20f, 20f);
+        steeringAngle += counterSteer;
+
+        // if(_gasInput < 0)
+        // {
+        //     steeringAngle = - steeringAngle;
+        // }
+
+        // steeringAngle += Vector3.SignedAngle(transform.forward, _rbPlayer.velocity + transform.forward, Vector3.up);
         steeringAngle = Mathf.Clamp(steeringAngle, -90f, 90f);
+
         _wheelColliders.FRWheel.steerAngle = steeringAngle;
         _wheelColliders.FLWheel.steerAngle = steeringAngle;
     }
