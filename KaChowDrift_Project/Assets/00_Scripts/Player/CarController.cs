@@ -20,10 +20,19 @@ public class CarController : MonoBehaviour
     private float _steeringInput;
     private float _brakeInput;
 
-    [Header("Data Power")]
+    [Header("DATA POWER")]
     [SerializeField] private float _motorPower;
     [SerializeField] private float _breakPower;
-    [SerializeField] private float _kmhMax = 100f;
+    [SerializeField] private float _kmhMax;
+
+    [Header("BOOST")]
+    [SerializeField] private float _boostTimer = 0f;
+    [SerializeField] private float _boostDuration = 2f;
+    [SerializeField] private float _boostMultiplier = 1.5f;
+    [SerializeField] private float _bosstActivationSpeed = 10f;
+
+    [Header("Tolerance au DRIFT")]
+    [SerializeField] private float _driftSpeedThreshold = 50f;
 
     [ShowInInspector, ReadOnly]
     [SerializeField] private float _currentKmh;
@@ -33,10 +42,12 @@ public class CarController : MonoBehaviour
     private float _speed;
     public AnimationCurve _steeringCurve;
 
+    [Header("PARTICLE SYSTEM")]
+    [SerializeField] private float slipAllowance;
     public GameObject _smokePrefab;
 
-    // public InputActionReference moveActionVector2;
 
+    [Header("INPUT SYSTEM")]
     public InputActionReference moveActionFloat;
     public InputActionReference gasAction;
     // public InputActionReference backAction;
@@ -47,6 +58,9 @@ public class CarController : MonoBehaviour
     {
         _rbPlayer = gameObject.GetComponent<Rigidbody>();
         InstantiateSmoke();
+        _boostTimer = 0f; // Initialiser le timer du boost à zéro
+
+        SetWheelStiffness(1f);
 
     }
 
@@ -56,6 +70,19 @@ public class CarController : MonoBehaviour
         _speed = _rbPlayer.velocity.magnitude;
         _currentKmh = _speed * 3.6f;
 
+        float stiffness = (_currentKmh < _driftSpeedThreshold) ? 0.9f : 1.5f;
+        SetWheelStiffness(stiffness);
+
+        if (_currentKmh < _bosstActivationSpeed && _gasInput > 0)
+        {
+            _boostTimer = _boostDuration;
+        }
+
+        if (_boostTimer > 0)
+        {
+            _boostTimer -= Time.deltaTime;
+        }
+
         CheckInput();
         ApplyWheelPositions();
         ApplyMotor();
@@ -63,6 +90,28 @@ public class CarController : MonoBehaviour
         ApplyBrake();
         CheckParticles();
 
+
+    }
+
+    void SetWheelStiffness(float stiffness)
+    {
+        // Fonction pour ajuster la stiffness des roues sans perdre les autres paramètres
+        void UpdateFriction(WheelCollider wheel)
+        {
+            var sidewaysFriction = wheel.sidewaysFriction;
+            sidewaysFriction.stiffness = stiffness;
+            wheel.sidewaysFriction = sidewaysFriction;
+
+            var forwardFriction = wheel.forwardFriction;
+            forwardFriction.stiffness = stiffness;
+            wheel.forwardFriction = forwardFriction;
+        }
+
+        // Mise à jour de toutes les roues
+        UpdateFriction(_wheelColliders.FRWheel);
+        UpdateFriction(_wheelColliders.FLWheel);
+        UpdateFriction(_wheelColliders.RRWheel);
+        UpdateFriction(_wheelColliders.RLWheel);
 
     }
 
@@ -75,7 +124,7 @@ public class CarController : MonoBehaviour
 
         _slipAngle = Vector3.Angle(transform.forward, _rbPlayer.velocity - transform.forward);
 
-        if (_slipAngle < 120f)
+        if (_slipAngle < 120)
         {
             if (_gasInput < 0)
             {
@@ -114,73 +163,96 @@ public class CarController : MonoBehaviour
         _wheelColliders.RRWheel.GetGroundHit(out wheelHits[2]);
         _wheelColliders.RLWheel.GetGroundHit(out wheelHits[3]);
 
-        float slipAllowance = 0.3f;
-
-        if ((Mathf.Abs(wheelHits[0].sidewaysSlip) + Mathf.Abs(wheelHits[0].forwardSlip) > slipAllowance))
+        // Condition pour drifter uniquement si la vitesse dépasse le seuil
+        if (_currentKmh > _driftSpeedThreshold)
         {
-            _wheelParticles.FRWheel.Play();
+            if ((Mathf.Abs(wheelHits[0].sidewaysSlip) + Mathf.Abs(wheelHits[0].forwardSlip) > slipAllowance))
+            {
+                _wheelParticles.FRWheel.Play();
+            }
+            else
+            {
+                _wheelParticles.FRWheel.Stop();
+
+            }
+            if ((Mathf.Abs(wheelHits[1].sidewaysSlip) + Mathf.Abs(wheelHits[1].forwardSlip) > slipAllowance))
+            {
+                _wheelParticles.FLWheel.Play();
+            }
+            else
+            {
+                _wheelParticles.FLWheel.Stop();
+
+            }
+            if ((Mathf.Abs(wheelHits[2].sidewaysSlip) + Mathf.Abs(wheelHits[2].forwardSlip) > slipAllowance))
+            {
+                _wheelParticles.RRWheel.Play();
+            }
+            else
+            {
+                _wheelParticles.RRWheel.Stop();
+
+            }
+            if ((Mathf.Abs(wheelHits[3].sidewaysSlip) + Mathf.Abs(wheelHits[3].forwardSlip) > slipAllowance))
+            {
+                _wheelParticles.RLWheel.Play();
+            }
+            // else
+            // {
+            //     _wheelParticles.RLWheel.Stop();
+
+            // }
         }
         else
         {
+            // Si la vitesse est en dessous du seuil, arrêter les particules
             _wheelParticles.FRWheel.Stop();
-
-        }
-        if ((Mathf.Abs(wheelHits[1].sidewaysSlip) + Mathf.Abs(wheelHits[1].forwardSlip) > slipAllowance))
-        {
-            _wheelParticles.FLWheel.Play();
-        }
-        else
-        {
             _wheelParticles.FLWheel.Stop();
-
-        }
-        if ((Mathf.Abs(wheelHits[2].sidewaysSlip) + Mathf.Abs(wheelHits[2].forwardSlip) > slipAllowance))
-        {
-            _wheelParticles.RRWheel.Play();
-        }
-        else
-        {
             _wheelParticles.RRWheel.Stop();
-
-        }
-        if ((Mathf.Abs(wheelHits[3].sidewaysSlip) + Mathf.Abs(wheelHits[3].forwardSlip) > slipAllowance))
-        {
-            _wheelParticles.RLWheel.Play();
-        }
-        else
-        {
             _wheelParticles.RLWheel.Stop();
-
         }
+
+
     }
 
     void ApplyBrake()
     {
-        _wheelColliders.FRWheel.brakeTorque = _brakeInput * _breakPower * 0.7F;
-        _wheelColliders.FLWheel.brakeTorque = _brakeInput * _breakPower * 0.7F;
-        _wheelColliders.RRWheel.brakeTorque = _brakeInput * _breakPower * 0.4F;
-        _wheelColliders.RLWheel.brakeTorque = _brakeInput * _breakPower * 0.4F;
+        // Réduire la force de freinage pour ralentir moins
+        float brakeForce = _brakeInput * _breakPower * 10f; // Ajustez ce facteur selon vos besoins
+
+        _wheelColliders.FRWheel.brakeTorque = brakeForce; // * 0.7f
+        _wheelColliders.FLWheel.brakeTorque = brakeForce; // * 0.7f
+        _wheelColliders.RRWheel.brakeTorque = brakeForce * 0.3F;
+        _wheelColliders.RLWheel.brakeTorque = brakeForce * 0.3F;
     }
 
     void ApplySteering()
     {
         float steeringAngle = _steeringInput * _steeringCurve.Evaluate(_speed);
 
+        if (_currentKmh >= _driftSpeedThreshold)
+        {
+            steeringAngle += Vector3.SignedAngle(transform.forward, _rbPlayer.velocity + transform.forward, Vector3.up);
+        }
+
+        steeringAngle = Mathf.Clamp(steeringAngle, -90f, 45f);
+
+        _wheelColliders.FRWheel.steerAngle = steeringAngle;
+        _wheelColliders.FLWheel.steerAngle = steeringAngle;
+
+
+
+
+        // -------------------------------------- A GARDER AU K OU -----------------------------------------
         // Contre-braquage basé sur la vitesse et la dérive
-        float counterSteer = Vector3.SignedAngle(transform.forward, _rbPlayer.velocity, Vector3.up);
-        counterSteer = Mathf.Clamp(counterSteer, -20f, 20f);
-        steeringAngle += counterSteer;
+        // float counterSteer = Vector3.SignedAngle(transform.forward, _rbPlayer.velocity, Vector3.up);
+        // counterSteer = Mathf.Clamp(counterSteer, -10f, 10f);
+        // steeringAngle += counterSteer;
 
         // if(_gasInput < 0)
         // {
         //     steeringAngle = - steeringAngle;
         // }
-
-        // steeringAngle += Vector3.SignedAngle(transform.forward, _rbPlayer.velocity + transform.forward, Vector3.up);
-        steeringAngle = Mathf.Clamp(steeringAngle, -90f, 90f);
-
-        _wheelColliders.FRWheel.steerAngle = steeringAngle;
-        _wheelColliders.FLWheel.steerAngle = steeringAngle;
     }
 
     void ApplyMotor()
@@ -188,17 +260,36 @@ public class CarController : MonoBehaviour
         // Convertir la vitesse en km/h
         float currentSpeedKmh = _rbPlayer.velocity.magnitude * 3.6f;
 
+        // Calculer l'effet du boost au démarrage (seulement si le boost est actif)
+        float boostEffect = (_boostTimer > 0) ? _boostMultiplier : 50f;
+
         // Si la vitesse dépasse la limite, désactiver le couple moteur
         if (currentSpeedKmh < _kmhMax)
         {
-            _wheelColliders.RRWheel.motorTorque = _motorPower * _gasInput;
-            _wheelColliders.RLWheel.motorTorque = _motorPower * _gasInput;
+            if (currentSpeedKmh >= _driftSpeedThreshold)
+            {
+                _wheelColliders.RRWheel.motorTorque = _motorPower * _gasInput * 0.8f * boostEffect;
+                _wheelColliders.RLWheel.motorTorque = _motorPower * _gasInput * 0.8f * boostEffect;
+            }
+            else
+            {
+                // Applique moins de couple pour éviter le drift à basse vitesse
+                _wheelColliders.RRWheel.motorTorque = _motorPower * _gasInput * 0.4f; // Ajuste le facteur si nécessaire
+                _wheelColliders.RLWheel.motorTorque = _motorPower * _gasInput * 0.4f;
+            }
         }
         else
         {
             _wheelColliders.RRWheel.motorTorque = 0f;
             _wheelColliders.RLWheel.motorTorque = 0f;
         }
+
+        
+        if (currentSpeedKmh >= _kmhMax)
+        {
+            _rbPlayer.velocity = _rbPlayer.velocity.normalized * (_kmhMax / 3.6f); // Limite la vitesse
+        }
+
     }
 
 
