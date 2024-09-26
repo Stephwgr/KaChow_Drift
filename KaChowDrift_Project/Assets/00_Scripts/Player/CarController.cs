@@ -7,7 +7,6 @@ using Sirenix.OdinInspector;
 
 
 
-
 public class CarController : MonoBehaviour
 {
     private Rigidbody _rbPlayer;
@@ -60,7 +59,7 @@ public class CarController : MonoBehaviour
         InstantiateSmoke();
         _boostTimer = 0f; // Initialiser le timer du boost à zéro
 
-        SetWheelStiffness(1f);
+        SetWheelStiffness(15f);
 
     }
 
@@ -70,7 +69,7 @@ public class CarController : MonoBehaviour
         _speed = _rbPlayer.velocity.magnitude;
         _currentKmh = _speed * 3.6f;
 
-        float stiffness = (_currentKmh < _driftSpeedThreshold) ? 0.9f : 1.5f;
+        float stiffness = (_currentKmh < _driftSpeedThreshold) ? 20f : 1.5f;
         SetWheelStiffness(stiffness);
 
         if (_currentKmh < _bosstActivationSpeed && _gasInput > 0)
@@ -92,6 +91,7 @@ public class CarController : MonoBehaviour
 
 
     }
+    
 
     void SetWheelStiffness(float stiffness)
     {
@@ -129,7 +129,7 @@ public class CarController : MonoBehaviour
             if (_gasInput < 0)
             {
                 _brakeInput = Mathf.Abs(_gasInput);
-                _gasInput = 0;
+                _gasInput = 0f;
             }
             else
             {
@@ -218,10 +218,10 @@ public class CarController : MonoBehaviour
     void ApplyBrake()
     {
         // Réduire la force de freinage pour ralentir moins
-        float brakeForce = _brakeInput * _breakPower * 10f; // Ajustez ce facteur selon vos besoins
+        float brakeForce = (_gasInput == 0) ? 100000f : 0f; 
 
-        _wheelColliders.FRWheel.brakeTorque = brakeForce; // * 0.7f
-        _wheelColliders.FLWheel.brakeTorque = brakeForce; // * 0.7f
+        _wheelColliders.FRWheel.brakeTorque = brakeForce * 0.7f;
+        _wheelColliders.FLWheel.brakeTorque = brakeForce * 0.7f;
         _wheelColliders.RRWheel.brakeTorque = brakeForce * 0.3F;
         _wheelColliders.RLWheel.brakeTorque = brakeForce * 0.3F;
     }
@@ -235,7 +235,7 @@ public class CarController : MonoBehaviour
             steeringAngle += Vector3.SignedAngle(transform.forward, _rbPlayer.velocity + transform.forward, Vector3.up);
         }
 
-        steeringAngle = Mathf.Clamp(steeringAngle, -90f, 45f);
+        steeringAngle = Mathf.Clamp(steeringAngle, -90f, 90f);
 
         _wheelColliders.FRWheel.steerAngle = steeringAngle;
         _wheelColliders.FLWheel.steerAngle = steeringAngle;
