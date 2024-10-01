@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Sirenix.OdinInspector;
-
-
+using TMPro;
+using MoreMountains.Feedbacks;
+using Unity.VisualScripting;
 
 public class CarController : MonoBehaviour
 {
@@ -15,9 +15,9 @@ public class CarController : MonoBehaviour
     public WheelParticles _wheelParticles;
 
     private float _gasInput;
-    // public float _backInput;
     private float _steeringInput;
     private float _brakeInput;
+    public float _changeCameraInput;
 
     [Header("DATA POWER")]
     [SerializeField] private float _motorPower;
@@ -45,12 +45,35 @@ public class CarController : MonoBehaviour
     [SerializeField] private float slipAllowance;
     public GameObject _smokePrefab;
 
+    [Header("SCORE SYSTEM")]
+    [SerializeField] public int _score = 0;
+    [SerializeField] private float _driftMultiplier = 2.3f;
+    private float _driftTimer = 10.63f;
+    [SerializeField] private bool isDrifting = false;
+    [SerializeField] private TextMeshProUGUI _scoreText;
+    // [SerializeField] private TextMeshProUGUI _multiplierText;
+    [SerializeField] private GameObject _scoreGameObject;
+    private Coroutine hideScoreCoroutine; // Hide -> Cacher
+    public float _timerHideScore = 3f;
+
+
 
     [Header("INPUT SYSTEM")]
     public InputActionReference moveActionFloat;
     public InputActionReference gasAction;
-    // public InputActionReference backAction;
     public InputActionReference brakeAction;
+
+    public InputActionReference changeCamera;
+
+    [Header("CAMERA")]
+    [SerializeField] private GameObject _cameraDrift;
+    [SerializeField] private GameObject _mainCamera;
+
+    [Header("SOUND AUDIO SYSTEM")]
+    // public MMF_Player _mmfPlayer;
+    public AudioSource _engineAudioSource;
+    public AudioSource _driftAudioSource;
+    [SerializeField] private float _volumeFadeSpeed = 1f; // Vitesse de fade-out
 
 
     private void Start()
@@ -60,6 +83,13 @@ public class CarController : MonoBehaviour
         _boostTimer = 0f; // Initialiser le timer du boost à zéro
 
         SetWheelStiffness(15f);
+
+        _cameraDrift.SetActive(false);
+        _mainCamera.SetActive(true);
+
+        _scoreGameObject.SetActive(false);
+
+
 
     }
 
@@ -82,16 +112,96 @@ public class CarController : MonoBehaviour
             _boostTimer -= Time.deltaTime;
         }
 
+        // Update Score Text
+        _scoreText.text = Mathf.RoundToInt(_score).ToString();
+        // _multiplierText.text = "x " + Mathf.RoundToInt(_driftTimer).ToString();
+        _driftTimer += Time.deltaTime;
+
+
         CheckInput();
         ApplyWheelPositions();
         ApplyMotor();
         ApplySteering();
         ApplyBrake();
         CheckParticles();
-
+        ChangingCamera();
+        UpdateDriftScore();
+        UpdateEngineSound();
 
     }
-    
+
+    public int GetScore()
+    {
+        return _score;
+    }
+
+    void UpdateDriftScore()
+    {
+        if (_currentKmh > _driftSpeedThreshold && isDrifting == true)
+        {
+            _scoreGameObject.SetActive(true);
+
+            if (!_driftAudioSource.isPlaying)
+            {
+                _driftAudioSource.Play();
+                // Ajuster le pitch de manière aléatoire entre 1.0 et 1.5
+                _driftAudioSource.pitch = Random.Range(1.0f, 1.2f);
+            }
+
+            if (hideScoreCoroutine != null)
+            {
+                StopCoroutine(hideScoreCoroutine);
+                hideScoreCoroutine = null;
+            }
+
+            _score += Mathf.RoundToInt(_driftTimer * _driftMultiplier);
+        }
+        else
+        {
+            if (_driftAudioSource.isPlaying)
+            {
+                _driftAudioSource.Stop();
+            }
+
+            if (hideScoreCoroutine == null)
+            {
+                hideScoreCoroutine = StartCoroutine(HideScoreAfterDelay(_timerHideScore));
+                _driftTimer = 0f;
+
+            }
+
+        }
+    }
+
+    private IEnumerator HideScoreAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        _scoreGameObject.SetActive(false);
+
+        hideScoreCoroutine = null;
+
+    }
+
+    void ChangingCamera()
+    {
+        _changeCameraInput = changeCamera.action.ReadValue<float>();
+
+        if (_changeCameraInput == 1)
+        {
+            _cameraDrift.SetActive(true);
+            _mainCamera.SetActive(false);
+
+        }
+        else
+        {
+            _cameraDrift.SetActive(false);
+            _mainCamera.SetActive(true);
+
+
+        }
+    }
+
 
     void SetWheelStiffness(float stiffness)
     {
@@ -121,6 +231,8 @@ public class CarController : MonoBehaviour
         _gasInput = gasAction.action.ReadValue<float>();
         // _brakeInput = brakeAction.action.ReadValue<float>();
         // _backInput = -backAction.action.ReadValue<float>();
+
+
 
         _slipAngle = Vector3.Angle(transform.forward, _rbPlayer.velocity - transform.forward);
 
@@ -166,42 +278,43 @@ public class CarController : MonoBehaviour
         // Condition pour drifter uniquement si la vitesse dépasse le seuil
         if (_currentKmh > _driftSpeedThreshold)
         {
+            isDrifting = false;
             if ((Mathf.Abs(wheelHits[0].sidewaysSlip) + Mathf.Abs(wheelHits[0].forwardSlip) > slipAllowance))
             {
                 _wheelParticles.FRWheel.Play();
+                isDrifting = true;
             }
             else
             {
                 _wheelParticles.FRWheel.Stop();
-
             }
             if ((Mathf.Abs(wheelHits[1].sidewaysSlip) + Mathf.Abs(wheelHits[1].forwardSlip) > slipAllowance))
             {
                 _wheelParticles.FLWheel.Play();
+                isDrifting = true;
             }
             else
             {
                 _wheelParticles.FLWheel.Stop();
-
             }
             if ((Mathf.Abs(wheelHits[2].sidewaysSlip) + Mathf.Abs(wheelHits[2].forwardSlip) > slipAllowance))
             {
                 _wheelParticles.RRWheel.Play();
+                isDrifting = true;
             }
             else
             {
                 _wheelParticles.RRWheel.Stop();
-
             }
             if ((Mathf.Abs(wheelHits[3].sidewaysSlip) + Mathf.Abs(wheelHits[3].forwardSlip) > slipAllowance))
             {
                 _wheelParticles.RLWheel.Play();
+                isDrifting = true;
             }
-            // else
-            // {
-            //     _wheelParticles.RLWheel.Stop();
-
-            // }
+            else
+            {
+                _wheelParticles.RLWheel.Stop();
+            }
         }
         else
         {
@@ -211,14 +324,12 @@ public class CarController : MonoBehaviour
             _wheelParticles.RRWheel.Stop();
             _wheelParticles.RLWheel.Stop();
         }
-
-
     }
 
     void ApplyBrake()
     {
         // Réduire la force de freinage pour ralentir moins
-        float brakeForce = (_gasInput == 0) ? 100000f : 0f; 
+        float brakeForce = (_gasInput == 0) ? 100000f : 0f;
 
         _wheelColliders.FRWheel.brakeTorque = brakeForce * 0.7f;
         _wheelColliders.FLWheel.brakeTorque = brakeForce * 0.7f;
@@ -284,12 +395,44 @@ public class CarController : MonoBehaviour
             _wheelColliders.RLWheel.motorTorque = 0f;
         }
 
-        
+        // Gestion du son du moteur
         if (currentSpeedKmh >= _kmhMax)
         {
             _rbPlayer.velocity = _rbPlayer.velocity.normalized * (_kmhMax / 3.6f); // Limite la vitesse
         }
 
+    }
+
+    private void UpdateEngineSound()
+    {
+        // Si on accélère et que le son du moteur n'est pas déjà en train de jouer
+        if (_gasInput > 0 && !_engineAudioSource.isPlaying)
+        {
+            _engineAudioSource.Play(); // Jouer le son du moteur si on commence à accélérer
+        }
+
+        // Calculer la proportion de la vitesse actuelle par rapport à la vitesse maximale
+        float speedRatio = Mathf.Clamp01(_currentKmh / _kmhMax); // Clamp pour éviter de dépasser 1
+
+        if (_gasInput > 0)
+        {
+            // Augmenter progressivement le volume en fonction de la vitesse
+            _engineAudioSource.volume = Mathf.Lerp(_engineAudioSource.volume, speedRatio * 0.3f, Time.deltaTime * _volumeFadeSpeed);
+
+            // Ajuster le pitch en fonction de la vitesse pour simuler l'accélération
+            _engineAudioSource.pitch = Mathf.Lerp(_engineAudioSource.pitch, 1f + speedRatio, Time.deltaTime * _volumeFadeSpeed);
+        }
+        else
+        {
+            // Diminuer progressivement le volume quand on relâche l'accélération
+            _engineAudioSource.volume = Mathf.Lerp(_engineAudioSource.volume, 0f, Time.deltaTime * _volumeFadeSpeed);
+
+            // Si le volume est presque à 0, on arrête le son
+            if (_engineAudioSource.volume <= 0.05f && _engineAudioSource.isPlaying)
+            {
+                _engineAudioSource.Stop();
+            }
+        }
     }
 
 

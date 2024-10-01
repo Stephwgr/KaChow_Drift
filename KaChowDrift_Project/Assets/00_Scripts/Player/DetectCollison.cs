@@ -21,6 +21,7 @@ public class DetectCollision : MonoBehaviour
     private float _lastDetection = 0f;
 
 
+
     private void Update()
     {
         DetectWall();
@@ -46,7 +47,7 @@ public class DetectCollision : MonoBehaviour
         {
             if (!isColliding && Time.time > _lastDetection + _timeBtwDetections)
             {
-                Debug.Log("WAAALLLLLL");
+                // Debug.Log("WAAALLLLLL");
                 _mmfPlayer?.PlayFeedbacks();
                 isColliding = true;
                 _lastDetection = Time.time;
@@ -57,7 +58,7 @@ public class DetectCollision : MonoBehaviour
             {
                 if (isColliding)
                 {
-                    Debug.Log("Sortie de la collision ");
+                    // Debug.Log("Sortie de la collision ");
                     isColliding = false;
 
                 }

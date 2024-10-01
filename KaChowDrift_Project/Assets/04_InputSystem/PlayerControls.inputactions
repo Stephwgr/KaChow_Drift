@@ -15,33 +15,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Back",
-                    "type": "Button",
-                    "id": "c765b10b-4d22-4f6d-9d92-d9c897f8f118",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Move_Vector2",
-                    "type": "PassThrough",
-                    "id": "f0888e78-4aeb-4370-bbfe-90b3d1a4f918",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Drift",
-                    "type": "Button",
-                    "id": "3a8c2f1b-3c0a-4465-bbd2-76cdb276d612",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Move_Float",
                     "type": "Button",
                     "id": "fafd5393-990b-46be-a81e-5f3010b26dfa",
@@ -58,75 +31,18 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "ChangeCamera",
+                    "type": "Button",
+                    "id": "5fe24583-a164-4382-b79a-86aedd34612c",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
-                {
-                    "name": "Keyboard",
-                    "id": "8d4b0d65-51ba-4d40-bf76-272820b1f042",
-                    "path": "2DVector",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move_Vector2",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "left",
-                    "id": "dd34274b-5dfa-4ee7-b3d3-85a8dfd836e7",
-                    "path": "<Keyboard>/a",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard_Gamepad",
-                    "action": "Move_Vector2",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "right",
-                    "id": "9b6aa43a-6604-44b5-b7ac-3fb3e3b2852c",
-                    "path": "<Keyboard>/d",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard_Gamepad",
-                    "action": "Move_Vector2",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "Manette",
-                    "id": "383a4960-1d9f-4701-8a99-d7e7374a404a",
-                    "path": "2DVector",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move_Vector2",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "left",
-                    "id": "e19dc146-5e30-49b0-9659-9e3eb981e629",
-                    "path": "<Gamepad>/leftStick/left",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move_Vector2",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "right",
-                    "id": "08892c1a-f2cf-4564-895b-725c1b173c71",
-                    "path": "<Gamepad>/leftStick/right",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move_Vector2",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
                 {
                     "name": "",
                     "id": "595fe384-d947-4574-9c8c-a21a26088e94",
@@ -173,50 +89,6 @@
                 },
                 {
                     "name": "",
-                    "id": "bb0f8d78-c487-4e76-a8ed-5c9213ad57d5",
-                    "path": "<Gamepad>/leftShoulder",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard_Gamepad",
-                    "action": "Drift",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "cac4c1ab-07ac-44ad-b739-9e58ac755cb3",
-                    "path": "<Gamepad>/buttonWest",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard_Gamepad",
-                    "action": "Drift",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "40d558f7-70a5-4b90-8b81-5fa4eb566092",
-                    "path": "<Gamepad>/leftTrigger",
-                    "interactions": "",
-                    "processors": "Invert",
-                    "groups": "Keyboard_Gamepad",
-                    "action": "Back",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "0714047c-485f-41b2-aa65-2921daa07def",
-                    "path": "<Keyboard>/s",
-                    "interactions": "",
-                    "processors": "Invert",
-                    "groups": "",
-                    "action": "Back",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "69d9bc89-5548-4b5d-ab99-2b560de01491",
                     "path": "<Gamepad>/leftStick/left",
                     "interactions": "",
@@ -256,6 +128,17 @@
                     "processors": "",
                     "groups": "Keyboard_Gamepad",
                     "action": "Brake",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4f788695-ef77-497b-9c0e-0a8c2ec52526",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChangeCamera",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
